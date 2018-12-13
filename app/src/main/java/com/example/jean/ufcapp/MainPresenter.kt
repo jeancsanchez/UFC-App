@@ -1,6 +1,10 @@
 package com.example.jean.ufcapp
 
+import com.example.jean.ufcapp.data.Remote
 import com.example.jean.ufcapp.models.Noticia
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 /**
  * @author Jean Carlos (Github: @jeancsanchez)
@@ -9,27 +13,35 @@ import com.example.jean.ufcapp.models.Noticia
  */
 class MainPresenter {
     var activity: MainActivity? = null
-    private val fakeNoticia = Noticia(
-            id = 1,
-            autor = "Jean",
-            titulo = "Lutador quebra pescoço de adversário",
-            foto = "http://imagec.ufc.com/http%253A%252F%252Fmedia.ufc.tv%252F1%252F230%252F3GettyImages-1056094360.jpg?mw300-mh300-tc1"
-    )
 
     fun attach(activity: MainActivity) {
         this.activity = activity
     }
 
-    fun carregarNoticias(id: Int? = null) {
+    fun carregarNoticias(id: Long? = null) {
         id?.let {
-            activity?.mostrarNoticia(fakeNoticia)
+            Remote.getService().noticiaInfo(id).enqueue(object : Callback<Noticia> {
+                override fun onResponse(call: Call<Noticia>, response: Response<Noticia>) {
+                    response.body()?.let { activity?.mostrarNoticia(it) }
+                            ?: onFailure(call, Throwable())
+                }
 
-        } ?: let {
-            val noticias = listOf(
-                    fakeNoticia,
-                    fakeNoticia.copy(id = 2, titulo = "Quebra pau no palco!", foto = "http://imagec.ufc.com/http%253A%252F%252Fmedia.ufc.tv%252F1%252F230%252F044148_230_WeighIn_ENG_669x376.jpg?mw300-mh300-tc1")
-            )
-            activity?.mostrarNoticias(noticias)
-        }
+                override fun onFailure(call: Call<Noticia>, t: Throwable) {
+                    // TODO: Activity?.mostrarErro()
+                    t.printStackTrace()
+                }
+            })
+
+        } ?: Remote.getService().listarNoticias().enqueue(object : Callback<List<Noticia>> {
+            override fun onResponse(call: Call<List<Noticia>>, response: Response<List<Noticia>>) {
+                response.body()?.let { activity?.mostrarNoticias(it) }
+                        ?: onFailure(call, Throwable())
+            }
+
+            override fun onFailure(call: Call<List<Noticia>>, t: Throwable) {
+                // TODO: Activity?.mostrarErro()
+                t.printStackTrace()
+            }
+        })
     }
 }
