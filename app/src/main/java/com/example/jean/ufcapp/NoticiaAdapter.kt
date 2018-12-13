@@ -28,6 +28,7 @@ class NoticiaAdapter : RecyclerView.Adapter<NoticiaAdapter.NoticiaViewHolder>() 
 
     fun adicionarNoticias(noticias: List<Noticia>) {
         this.noticias = noticias
+        notifyDataSetChanged()
     }
 
 
@@ -40,10 +41,13 @@ class NoticiaAdapter : RecyclerView.Adapter<NoticiaAdapter.NoticiaViewHolder>() 
             itemView.txtTituloNoticia.text = noticia.titulo
             itemView.txtSubTituloNoticia.text = noticia.autor
 
-            Picasso.get()
-                    .load(noticia.foto)
-                    .fit()
-                    .into(itemView.imgThumbNoticia)
+            if (noticia.foto?.isBlank() == false) {
+                Picasso.get()
+                        .load(noticia.foto)
+                        .placeholder(itemView.resources.getDrawable(R.drawable.ufcbg))
+                        .fit()
+                        .into(itemView.imgThumbNoticia)
+            }
         }
     }
 }

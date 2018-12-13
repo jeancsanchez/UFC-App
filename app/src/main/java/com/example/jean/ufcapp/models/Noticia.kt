@@ -18,5 +18,5 @@ data class Noticia(
         val titulo: String,
 
         @SerializedName("thumbnail")
-        val foto: String
+        val foto: String? = null
 )
