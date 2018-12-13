@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.item_noticia.view.*
  * Jesus is alive!
  */
 class NoticiaAdapter : RecyclerView.Adapter<NoticiaAdapter.NoticiaViewHolder>() {
-    var noticias: List<Noticia> = emptyList()
+    private var noticias: List<Noticia> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int): NoticiaViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_noticia, parent, false)
@@ -39,7 +39,11 @@ class NoticiaAdapter : RecyclerView.Adapter<NoticiaAdapter.NoticiaViewHolder>() 
         fun onBind(noticia: Noticia) {
             itemView.txtTituloNoticia.text = noticia.titulo
             itemView.txtSubTituloNoticia.text = noticia.autor
-            Picasso.get().load(noticia.foto).into(itemView.imgThumbNoticia)
+
+            Picasso.get()
+                    .load(noticia.foto)
+                    .fit()
+                    .into(itemView.imgThumbNoticia)
         }
     }
 }
