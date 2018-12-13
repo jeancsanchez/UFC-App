@@ -7,5 +7,11 @@ package com.example.jean.ufcapp
  */
 class MainPresenter {
 
-
+    fun carregarNoticias(id: Int? = null) {
+        id?.let {
+            // Carregar noticia
+        } ?: let {
+            // Carregar Noticias
+        }
+    }
 }
