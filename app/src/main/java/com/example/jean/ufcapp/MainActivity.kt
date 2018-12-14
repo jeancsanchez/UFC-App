@@ -18,6 +18,11 @@ class MainActivity : AppCompatActivity() {
 
         recviewNews.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
         recviewNews.adapter = noticiaAdapter
+        swipeNews.setColorSchemeColors(
+                resources.getColor(R.color.colorPrimaryDark),
+                resources.getColor(R.color.colorAccent)
+        )
+        swipeNews.setOnRefreshListener { presenter.carregarNoticias() }
 
         presenter.attach(this)
         presenter.carregarNoticias()
@@ -30,5 +35,13 @@ class MainActivity : AppCompatActivity() {
 
     fun mostrarNoticia(noticia: Noticia) {
 
+    }
+
+    fun mostrarLoading() {
+        swipeNews.isRefreshing = true
+    }
+
+    fun esconderLoading() {
+        swipeNews.isRefreshing = false
     }
 }

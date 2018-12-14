@@ -19,16 +19,20 @@ class MainPresenter {
     }
 
     fun carregarNoticias(id: Long? = null) {
+        activity?.mostrarLoading()
+
         id?.let {
             Remote.getService().noticiaInfo(id).enqueue(object : Callback<Noticia> {
                 override fun onResponse(call: Call<Noticia>, response: Response<Noticia>) {
                     response.body()?.let { activity?.mostrarNoticia(it) }
                             ?: onFailure(call, Throwable())
+                    activity?.esconderLoading()
                 }
 
                 override fun onFailure(call: Call<Noticia>, t: Throwable) {
                     // TODO: Activity?.mostrarErro()
                     t.printStackTrace()
+                    activity?.esconderLoading()
                 }
             })
 
@@ -36,11 +40,13 @@ class MainPresenter {
             override fun onResponse(call: Call<List<Noticia>>, response: Response<List<Noticia>>) {
                 response.body()?.let { activity?.mostrarNoticias(it) }
                         ?: onFailure(call, Throwable())
+                activity?.esconderLoading()
             }
 
             override fun onFailure(call: Call<List<Noticia>>, t: Throwable) {
                 // TODO: Activity?.mostrarErro()
                 t.printStackTrace()
+                activity?.esconderLoading()
             }
         })
     }
