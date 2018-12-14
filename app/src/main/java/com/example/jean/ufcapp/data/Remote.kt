@@ -10,7 +10,8 @@ import retrofit2.converter.gson.GsonConverterFactory
  */
 object Remote {
 
-    private const val ENDPOINT = "http://ufc-data-api.ufc.com/api/v1/us/"
+    const val ENDPOINT = "http://ufc-data-api.ufc.com/api/v2/us/"
+
 
     fun getService(): UFCApi {
         val retrofit = Retrofit.Builder()

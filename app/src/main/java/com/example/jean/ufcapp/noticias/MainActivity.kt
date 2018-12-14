@@ -1,10 +1,14 @@
-package com.example.jean.ufcapp
+package com.example.jean.ufcapp.noticias
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.widget.LinearLayout
+import com.example.jean.ufcapp.R
 import com.example.jean.ufcapp.models.Noticia
+import com.example.jean.ufcapp.noticiadetalhe.DetalheActivity
+import com.example.jean.ufcapp.noticiadetalhe.DetalheActivity.Companion.NOTICIA_EXTRA
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -30,11 +34,13 @@ class MainActivity : AppCompatActivity() {
 
 
     fun mostrarNoticias(list: List<Noticia>) {
-        noticiaAdapter.adicionarNoticias(list)
+        noticiaAdapter.adicionarNoticias(list) { presenter.carregarNoticias(id = it) }
     }
 
-    fun mostrarNoticia(noticia: Noticia) {
-
+    fun mostrarNoticia(url: String) {
+        val intent = Intent(this, DetalheActivity::class.java)
+        intent.putExtra(NOTICIA_EXTRA, url)
+        startActivity(intent)
     }
 
     fun mostrarLoading() {
