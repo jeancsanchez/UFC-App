@@ -3,6 +3,10 @@ package com.example.jean.ufcapp.noticias
 import com.example.jean.ufcapp.data.Remote
 import com.example.jean.ufcapp.data.database.AppDatabase
 import com.example.jean.ufcapp.models.Noticia
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -27,13 +31,17 @@ class MainPresenter {
                 it.mostrarNoticia(Remote.ENDPOINT.plus("news/$id"))
                 it.esconderLoading()
             } else {
-                val noticias = AppDatabase
-                        .getDatabase(it)
-                        .noticiaDao()
-                        .buscarTodas()
+                val noticias = runBlocking {
+                    GlobalScope.async {
+                        AppDatabase.getDatabase(it)
+                                .noticiaDao()
+                                .buscarTodas()
+                    }.await()
+                }
 
                 if (noticias.isEmpty().not()) {
                     it.mostrarNoticias(noticias)
+                    it.esconderLoading()
                 } else {
                     Remote
                             .getService()
@@ -42,10 +50,14 @@ class MainPresenter {
                                 override fun onResponse(call: Call<List<Noticia>>, response: Response<List<Noticia>>) {
                                     response.body()?.let { noticias ->
                                         it.mostrarNoticias(noticias)
-                                        AppDatabase
-                                                .getDatabase(it)
-                                                .noticiaDao()
-                                                .inserir(noticias)
+
+                                        GlobalScope.launch {
+                                            AppDatabase
+                                                    .getDatabase(it)
+                                                    .noticiaDao()
+                                                    .inserir(noticias)
+                                        }
+
                                     } ?: onFailure(call, Throwable())
                                     it.esconderLoading()
                                 }
