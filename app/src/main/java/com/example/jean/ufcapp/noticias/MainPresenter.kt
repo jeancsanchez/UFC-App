@@ -1,6 +1,7 @@
 package com.example.jean.ufcapp.noticias
 
 import com.example.jean.ufcapp.data.Remote
+import com.example.jean.ufcapp.data.database.AppDatabase
 import com.example.jean.ufcapp.models.Noticia
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,22 +22,48 @@ class MainPresenter {
     fun carregarNoticias(id: Long? = null) {
         activity?.mostrarLoading()
 
-        id?.let {
-            activity?.mostrarNoticia(Remote.ENDPOINT.plus("news/$id"))
-            activity?.esconderLoading()
+        activity?.let {
+            if (id != null) {
+                it.mostrarNoticia(Remote.ENDPOINT.plus("news/$id"))
+                it.esconderLoading()
+            } else {
+                val noticias = AppDatabase
+                        .getDatabase(it)
+                        .noticiaDao()
+                        .buscarTodas()
 
-        } ?: Remote.getService().listarNoticias().enqueue(object : Callback<List<Noticia>> {
-            override fun onResponse(call: Call<List<Noticia>>, response: Response<List<Noticia>>) {
-                response.body()?.let { activity?.mostrarNoticias(it) }
-                        ?: onFailure(call, Throwable())
-                activity?.esconderLoading()
-            }
+                if (noticias.isEmpty().not()) {
+                    it.mostrarNoticias(noticias)
+                } else {
+                    Remote
+                            .getService()
+                            .listarNoticias()
+                            .enqueue(object : Callback<List<Noticia>> {
+                                override fun onResponse(call: Call<List<Noticia>>, response: Response<List<Noticia>>) {
+                                    response.body()?.let { noticias ->
+                                        it.mostrarNoticias(noticias)
+                                        AppDatabase
+                                                .getDatabase(it)
+                                                .noticiaDao()
+                                                .inserir(noticias)
+                                    } ?: onFailure(call, Throwable())
+                                    it.esconderLoading()
+                                }
 
-            override fun onFailure(call: Call<List<Noticia>>, t: Throwable) {
-                // TODO: Activity?.mostrarErro()
-                t.printStackTrace()
-                activity?.esconderLoading()
+                                override fun onFailure(call: Call<List<Noticia>>, t: Throwable) {
+                                    // TODO: Activity?.mostrarErro()
+                                    t.printStackTrace()
+                                    activity?.esconderLoading()
+                                }
+                            })
+                }
             }
-        })
+        }
+    }
+
+
+    fun onDestroy() {
+        activity?.let { AppDatabase.destroyInstance() }
+        activity = null
     }
 }

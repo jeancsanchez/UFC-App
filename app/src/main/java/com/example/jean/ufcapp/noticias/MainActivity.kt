@@ -32,7 +32,6 @@ class MainActivity : AppCompatActivity() {
         presenter.carregarNoticias()
     }
 
-
     fun mostrarNoticias(list: List<Noticia>) {
         noticiaAdapter.adicionarNoticias(list) { presenter.carregarNoticias(id = it) }
     }
@@ -49,5 +48,10 @@ class MainActivity : AppCompatActivity() {
 
     fun esconderLoading() {
         swipeNews.isRefreshing = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.onDestroy()
     }
 }
